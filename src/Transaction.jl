@@ -1,3 +1,7 @@
+# Copyright (c) 2019 Guido Kraemer
+# Distributed under the MIT software license, see the accompanying
+# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 raw"""
 All the inputs are consumed and the difference of the output sums goes to the
 miner
@@ -451,21 +455,6 @@ function dump_tx_data!(data, idx, tx::Transaction)
     idx += sizeof(tx.lock_time)
 
     return idx
-end
-
-# TODO: common abstraction with "Link"?
-struct FilePointer
-    file_number   :: UInt64
-    file_position :: UInt64
-end
-
-function Transaction(fp::FilePointer)
-    fp.file_number |>
-        get_block_chain_file_path |>
-        x -> open(x) do fh
-            seek(fh, fp.file_position)
-            Transaction(fh)
-        end
 end
 
 total_output(tx::Transaction) = sum(x -> x.amount, tx.outputs)

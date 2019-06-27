@@ -1,3 +1,7 @@
+# Copyright (c) 2019 Guido Kraemer
+# Distributed under the MIT software license, see the accompanying
+# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 # These are the varints used in blocks! There are other varints used in the
 # txindex data base!
 
@@ -18,8 +22,6 @@ function read_varint(io::IO)::UInt64
     elseif i == 0xFF UInt64(read(io, UInt64))
     end
 end
-
-read_varint(x::BCIterator) = read_varint(x.io)
 
 # We have to assume that the varint was always saved in the most space saving
 # way for the following to work, no idea if this is guaranteed:

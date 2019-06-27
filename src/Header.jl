@@ -1,3 +1,6 @@
+# Copyright (c) 2019 Guido Kraemer
+# Distributed under the MIT software license, see the accompanying
+# file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 # struct Header
 #     version           ::UInt32
@@ -36,25 +39,6 @@ struct Header
 end
 
 Header(x::IO) = Header(ntuple((i) -> read(x, UInt8), 80))
-
-function Header(bcio::BCIterator)
-
-    check_magic_bytes(bcio)
-
-    block_size = read(bcio, UInt32)
-
-    block_header = Header(bcio.io)
-
-    # @assert block_size - 80 > 0
-
-    skip(bcio, block_size - 80)
-
-    if eof(bcio)
-        open_next_file(bcio)
-    end
-
-    block_header
-end
 
 @inline Base.getindex(x::Header, r) = x.data[r]
 
@@ -100,14 +84,4 @@ end
 function double_sha256(x::Header)::UInt256
     x.data |> sha256 |> sha256 |>
         x -> reinterpret(UInt256, x)[1]
-end
-
-
-function Header(fp::FilePointer)
-    fp.file_number |>
-        BTCParser.get_block_chain_file_path |>
-        x -> open(x) do fh
-            seek(fh, fp.file_position)
-            Header(fh)
-        end
 end

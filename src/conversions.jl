@@ -1,3 +1,7 @@
+# Copyright (c) 2019 Guido Kraemer
+# Distributed under the MIT software license, see the accompanying
+# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 function nbytes_to_unsigned_type(n)
     if     n == 1  UInt8
     elseif n == 2  UInt16
@@ -12,7 +16,7 @@ end
 # TODO: little endian only
 # This one gets optimized out completely in 0.7+ :-)
 """
-    BTCParser.to_unsigned(x::NTuple{N, UInt8})::Unsigned
+    BitcoinPrimitives.to_unsigned(x::NTuple{N, UInt8})::Unsigned
 
 Convert a tuple to an unsigned (`UInt8`, `UInt16`, `UInt32`, `UInt64`,
 `UInt128`, `UInt256`) with the identical order of bits.
@@ -37,24 +41,24 @@ end
 function to_unsigned(x::NTuple{32, UInt8})
     x |> Ref |>
         x -> Base.unsafe_convert(Ptr{NTuple{32, UInt8}}, x) |>
-        x -> convert(Ptr{UInt256}, x) |>
+        x -> convert(Ptr{BigInt}, x) |>
         x -> unsafe_load(x)
 end
 
 # TODO: figure out a no-op way to do this
-function to_byte_tuple(x::T) where T <: Union{UInt256, UInt128}
-    x |>
-        Ref |>
-        x -> Base.unsafe_convert(Ptr{T}, x) |>
-        x -> convert(Ptr{NTuple{sizeof(T), UInt8}}, x) |>
-        x -> unsafe_load(x)
-end
+# function to_byte_tuple(x::T) where T <: Union{UInt256, UInt128}
+#     x |>
+#         Ref |>
+#         x -> Base.unsafe_convert(Ptr{T}, x) |>
+#         x -> convert(Ptr{NTuple{sizeof(T), UInt8}}, x) |>
+#         x -> unsafe_load(x)
+# end
 
 # TODO: Little endian only
 # TODO: figure out a no-op way to do this
 # NOTE: This is really slow for UInt128
 """
-    BTCParser.to_byte_tuple(x::Unsigned)::NTuple{N, UInt8}
+    BitcoinPrimitives.to_byte_tuple(x::Unsigned)::NTuple{N, UInt8}
 
 Convert an `Unsigned` (`UInt8`, `UInt16`, `UInt32`, `UInt64`, `UInt128`,
 `UInt256`) into an `NTuple{N, UInt8}` with the identical order of bits.

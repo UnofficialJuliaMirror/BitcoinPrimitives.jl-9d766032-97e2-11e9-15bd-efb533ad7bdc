@@ -1,10 +1,8 @@
+# Copyright (c) 2019 Guido Kraemer
+# Distributed under the MIT software license, see the accompanying
+# file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-using BTCParser
-using Test
-
-using Ripemd
-using SHA
-using Base58
+using BitcoinPrimitives, Test
 
 files = readdir(".")
 
@@ -16,4 +14,3 @@ sort!(files, by = x -> stat(x).mtime, rev = true)
 for f in files
     include(f)
 end
-

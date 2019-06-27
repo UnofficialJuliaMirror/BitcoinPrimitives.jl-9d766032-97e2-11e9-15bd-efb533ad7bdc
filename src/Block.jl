@@ -1,3 +1,7 @@
+# Copyright (c) 2019 Guido Kraemer
+# Distributed under the MIT software license, see the accompanying
+# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 """
     Block
 
@@ -37,18 +41,6 @@ function Block(io::IO)
         n_trans,
         transactions
     )
-end
-
-function Block(bcio::BCIterator)
-
-    check_magic_bytes(bcio)
-    block = Block(bcio.io)
-
-    if eof(bcio)
-        open_next_file(bcio)
-    end
-
-    return block
 end
 
 function Block(x::Array{UInt8})
@@ -112,11 +104,6 @@ function dump_block_data(io::IO)
     read!(io, Array{UInt8}(undef, block_size))
 end
 
-function dump_block_data(bcio::BCIterator)
-    check_magic_bytes(bcio)
-    dump_block_data(bcio.io)
-end
-
 function dump_block_data(block::Block)
 
     data = Array{UInt8}(undef, block.size)
@@ -134,13 +121,4 @@ function dump_block_data(block::Block)
     @assert idx == length(data) + 1
 
     return data
-end
-
-function Block(fp::FilePointer)
-    fp.file_number |>
-        get_block_chain_file_path |>
-        x -> open(x) do fh
-            seek(fh, fp.file_position)
-            Block(fh)
-        end
 end
