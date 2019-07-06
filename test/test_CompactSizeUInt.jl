@@ -8,7 +8,7 @@
                  ([0xfd, 0xd0, 0x24], 9424),
                  ([0xff, 0x70, 0x9a, 0xeb, 0xb4, 0xbb, 0x7f, 0x00, 0x00], 140444170951280)]
         for t in tests
-            n = read(IOBuffer(t[1]))::CompactSizeUInt
+            n = CompactSizeUInt(IOBuffer(t[1]))
             @test n.value == t[2]
         end
     end

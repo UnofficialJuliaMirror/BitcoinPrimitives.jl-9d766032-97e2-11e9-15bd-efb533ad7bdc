@@ -8,7 +8,7 @@
 Data Structure representing a Block in the Bitcoin blockchain.
 
 Consists of a `block.header::Header` and
-`block.transactions::Vector{Transaction}`.
+`block.transactions::Vector{Tx}`.
 
 To get the hash of a `Block`
 ```julia
@@ -19,7 +19,7 @@ struct Block
     size                :: UInt32
     header              :: Header
     transaction_counter :: UInt64
-    transactions        :: Vector{Transaction}
+    transactions        :: Vector{Tx}
 end
 
 function Block(io::IO)
@@ -30,8 +30,8 @@ function Block(io::IO)
 
     n_trans = read_varint(io)
     @assert n_trans > zero(n_trans)
-    transactions = Transaction[
-        Transaction(io)
+    transactions = Tx[
+        Tx(io)
         for i in 1:n_trans
     ]
 
@@ -52,8 +52,8 @@ function Block(x::Array{UInt8})
 
     n_trans = read_varint(io)
     @assert n_trans > zero(n_trans)
-    transactions = Transaction[
-        Transaction(io)
+    transactions = Tx[
+        Tx(io)
         for i in 1:n_trans
     ]
 
@@ -86,9 +86,9 @@ end
 """
     double_sha256(x::Block)::UInt256
     double_sha256(x::Header)::UInt256
-    double_sha256(x::Transaction)::UInt256
+    double_sha256(x::Tx)::UInt256
 
-Hash a `Block`, `Header`, or `Transaction`
+Hash a `Block`, `Header`, or `Tx`
 
 ```julia
 double_sha256(block)

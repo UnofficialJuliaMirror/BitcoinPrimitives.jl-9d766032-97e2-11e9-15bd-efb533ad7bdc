@@ -30,7 +30,6 @@ For example, the number 515 is encoded as 0xfd0302.
 struct CompactSizeUInt <: Unsigned
     value::Unsigned
     prefix::Union{Nothing, UInt8}
-    CompactSizeUInt(n::Integer, p::Union{Nothing, UInt8}) = new(n, p)
 end
 
 CompactSizeUInt(n::Integer) =
@@ -52,7 +51,7 @@ String(z::CompactSizeUInt) = string(Int(z.value))
 
 Returns a CompactSizeUInt from an IO stream
 """
-function Base.read(io::IOBuffer)::CompactSizeUInt
+function CompactSizeUInt(io::IOBuffer)
     p = read(io, 1)[1]
     if p == 0xfd
         n = ltoh(reinterpret(UInt16, read(io, 2))[1])
