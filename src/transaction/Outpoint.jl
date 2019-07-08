@@ -10,10 +10,12 @@ number to refer to specific output.
   The first output is 0x00000000.
 """
 struct Outpoint
-    hash    :: Tuple{32, UInt8}
+    txid    :: Vector{UInt8}
     index   :: UInt32
 end
 
 function Outpoint(io::IOBuffer)
-    body
+    txid = read(io, 32)
+    index = read(io, UInt32)
+    Outpoint(txid, index)
 end
