@@ -4,8 +4,8 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 include("Outpoint.jl")
-include("Input.jl")
-include("Output.jl")
+include("TxIn.jl")
+include("TxOut.jl")
 include("Witness.jl")
 
 """

@@ -23,7 +23,7 @@ const MAGIC_SIZE = sizeof(eltype(MAGIC))
 include("lib/conversions.jl")
 include("lib/varint.jl")
 include("lib/CompactSizeUInt.jl")
-include("Transaction/Transaction.jl")
+include("transaction/Tx.jl")
 include("Header.jl")
 include("Block.jl")
 
