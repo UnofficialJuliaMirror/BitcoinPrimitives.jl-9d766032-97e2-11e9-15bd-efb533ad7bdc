@@ -27,11 +27,11 @@ Parse an `IOBuffer` to a `TxIn`
 """
 function TxIn(io::IOBuffer)
     previous_output = Outpoint(io)
-    script_bytes = CompactSizeUInt(io)
+    script_bytes = CompactSizeUInt(io).value
     signature_script = read(io, script_bytes)
     sequence = read(io, UInt32)
 
-    TxIn(outpoint, signature_script, sequence)
+    TxIn(previous_output, signature_script, sequence)
 end
 
 function Base.show(io::IO, input::TxIn)
