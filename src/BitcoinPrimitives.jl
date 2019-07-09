@@ -9,7 +9,7 @@ using SHA, Printf
 
 export
     Block, Header,
-    Transaction, TransactionInput, TransactionOutput,
+    Tx, TxIn, TxOut, Outpoint,
     Witness, CompactSizeUInt,
     serialize
 
