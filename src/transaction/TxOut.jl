@@ -29,7 +29,7 @@ Parse an `IOBuffer` to a `TxOut`
 """
 function TxOut(io::IOBuffer)
     value = read(io, UInt64)
-    script_bytes = CompactSizeUInt(io)
+    script_bytes = CompactSizeUInt(io).value
     pk_script = read(io, script_bytes)
 
     TxOut(value, pk_script)
