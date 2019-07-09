@@ -8,14 +8,14 @@
 
 Each non-coinbase input spends an outpoint from a previous transaction.
 A `TxIn` is composed of
-- `previous_output::Outpoint`, The previous outpoint being spent
+- `prevout::Outpoint`, The previous outpoint being spent
 - `signature_script::Vector{UInt8}`, which satisfies the conditions placed in
 the outpoint’s pubkey script. Should only contain data pushes
 - `sequence::UInt32` number. Default for Bitcoin Core and almost all other
 programs is `0xffffffff`
 """
 struct TxIn
-    previous_output     :: Outpoint
+    prevout     :: Outpoint
     signature_script    :: Vector{UInt8}
     sequence            :: UInt32
 end
@@ -26,12 +26,12 @@ end
 Parse an `IOBuffer` to a `TxIn`
 """
 function TxIn(io::IOBuffer)
-    previous_output = Outpoint(io)
+    prevout = Outpoint(io)
     script_bytes = CompactSizeUInt(io).value
     signature_script = read(io, script_bytes)
     sequence = read(io, UInt32)
 
-    TxIn(previous_output, signature_script, sequence)
+    TxIn(prevout, signature_script, sequence)
 end
 
 function Base.show(io::IO, input::TxIn)
