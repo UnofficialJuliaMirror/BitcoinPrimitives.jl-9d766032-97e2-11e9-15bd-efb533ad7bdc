@@ -1,26 +1,31 @@
-# Copyright (c) 2019 Guido Kraemer
-# Distributed under the MIT software license, see the accompanying
-# file COPYING or http://www.opensource.org/licenses/mit-license.php.
-
 """
-    TransactionOutput
+    TxOut
 
-Data Structure Storing Transaction Outputs
+Each output spends a certain number of satoshis, placing them under control of
+anyone who can satisfy the provided pubkey script.
+A `TxOut` is composed of
+- `value::UInt64`, number of satoshis to spend. May be zero; the sum of all
+outputs may not exceed the sum of satoshis previously spent to the outpoints
+provided in the input section. (Exception: coinbase transactions spend the
+block subsidy and collected transaction fees.)
+- `pk_script::Vector{UInt8}` which defines the conditions which must be
+satisfied to spend this output.
+
 """
 struct TxOut
-    # TODO: remove locking_script_size
-    amount              :: UInt64 # in satoshis = 1e-8 bitcoins
-    locking_script_size :: UInt64
-    locking_script      :: Vector{UInt8}
+    value       :: UInt64
+    pk_script   :: Vector{UInt8}
 end
 
+"""
+    TxOut(io::IOBuffer)
+
+Parse an `IOBuffer` to a `TxOut`
+"""
 function TxOut(io::IOBuffer)
+    value = read(io, UInt64)
+    script_bytes = CompactSizeUInt(io)
+    pk_script = read(io, script_bytes)
 
-    out_amount = read(io, UInt64)
-    out_script_size = signed(read_varint(io))
-    locking_script = read!(io, Array{UInt8}(undef, out_script_size))
-
-    TransactionOutput(out_amount,
-    out_script_size,
-    locking_script)
+    TxOut(value, pk_script)
 end
