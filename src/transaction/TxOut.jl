@@ -1,3 +1,8 @@
+# Copyright (c) 2019 Guido Kraemer
+# Copyright (c) 2019 Simon Castano
+# Distributed under the MIT software license, see the accompanying
+# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 """
     TxOut
 
@@ -29,3 +34,13 @@ function TxOut(io::IOBuffer)
 
     TxOut(value, pk_script)
 end
+
+function Base.show(io::IO, output::TxOut)
+    println(io, "Transaction output: " * string(output.amount, base = 10))
+end
+
+# function Base.showall(io::IO, output::TxOut)
+#     println(io, "Transaction output: "    * string(output.amount,              base = 10))
+#     println(io, "  Locking script size: " * string(output.locking_script_size, base = 10))
+#     println(io, "  Locking script:      " * hexarray(output.locking_script))
+# end

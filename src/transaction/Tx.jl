@@ -8,6 +8,8 @@ include("TxIn.jl")
 include("TxOut.jl")
 include("Witness.jl")
 
+abstract type Transaction end
+
 """
 Bitcoin transactions are broadcast between peers in a serialized byte format,
 called raw format. It is this form of a transaction which is SHA256(SHA256())
@@ -29,7 +31,7 @@ Version 2 means that BIP 68 applies.
 A transaction may have multiple inputs and outputs, so the `TxIn` and `TxOut`
 structures may recur within a transaction.
 """
-struct Tx
+struct Tx <: Transaction
     version     :: UInt32
     marker      :: UInt8
     flag        :: UInt8
@@ -72,43 +74,6 @@ end
 
 # TODO: is this the same as bytes2hex?
 hexarray(x::Array{UInt8}) = mapreduce(x -> string(x, base = 16), *, x)
-
-function showcompact(io::IO, input::TxIn)
-    # TODO: do something useful here
-    println(io, "")
-end
-
-function Base.show(io::IO, input::TxIn)
-    if !get(io, :compact, false)
-        println(io, "Transaction input:")
-        println(io, "  Hash:                  " * string(input.hash,            base = 16))
-        println(io, "  Output index:          " * string(input.output_index,    base = 10))
-        println(io, "  Input Sequence:        " * string(input.sequence_number, base = 10))
-    end
-end
-
-# function Base.showall(io::IO, input::TxIn)
-#     println(io, "Transaction input:")
-#     println(io, "  Hash:                  " * input.hash)
-#     println(io, "  Output index:          " * input.output_index)
-#     println(io, "  Unlocking script size: " * input.unlocking_script_size)
-#     println(io, "  Unlocking script:      " * hexarray(input.unlocking_script))
-#     println(io, "  Input Sequence:        " * input.sequence_number)
-# end
-
-function Base.show(io::IO, output::TxOut)
-    println(io, "Transaction output: " * string(output.amount, base = 10))
-end
-# function Base.showall(io::IO, output::TxOut)
-#     println(io, "Transaction output: "    * string(output.amount,              base = 10))
-#     println(io, "  Locking script size: " * string(output.locking_script_size, base = 10))
-#     println(io, "  Locking script:      " * hexarray(output.locking_script))
-# end
-
-function showcompact(io::IO, transaction::Tx)
-    # TODO: add id here
-    println(io, "Transaction: ")
-end
 
 function Base.show(io::IO, transaction::Tx)
     # TODO: add id here

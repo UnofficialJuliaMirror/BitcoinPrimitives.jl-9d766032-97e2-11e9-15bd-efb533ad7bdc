@@ -1,3 +1,8 @@
+# Copyright (c) 2019 Guido Kraemer
+# Copyright (c) 2019 Simon Castano
+# Distributed under the MIT software license, see the accompanying
+# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
 """
     TxIn
 
@@ -28,3 +33,21 @@ function TxIn(io::IOBuffer)
 
     TxIn(outpoint, signature_script, sequence)
 end
+
+function Base.show(io::IO, input::TxIn)
+    if !get(io, :compact, false)
+        println(io, "Transaction input:")
+        println(io, "  Hash:                  " * string(input.hash,            base = 16))
+        println(io, "  Output index:          " * string(input.output_index,    base = 10))
+        println(io, "  Input Sequence:        " * string(input.sequence_number, base = 10))
+    end
+end
+
+# function Base.showall(io::IO, input::TxIn)
+#     println(io, "Transaction input:")
+#     println(io, "  Hash:                  " * input.hash)
+#     println(io, "  Output index:          " * input.output_index)
+#     println(io, "  Unlocking script size: " * input.unlocking_script_size)
+#     println(io, "  Unlocking script:      " * hexarray(input.unlocking_script))
+#     println(io, "  Input Sequence:        " * input.sequence_number)
+# end
