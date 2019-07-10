@@ -8,9 +8,10 @@ module BitcoinPrimitives
 using SHA, Printf
 
 export
+    CompactSizeUInt, Outpoint,
+    TxIn, TxOut, Tx,
     Block, Header,
-    Tx, TxIn, TxOut, Outpoint,
-    Witness, CompactSizeUInt,
+    Script, Witness,
     serialize
 
 const HEADER_SIZE = 80
@@ -20,7 +21,6 @@ const HEADER_SIZE = 80
 const MAGIC = 0xd9b4_bef9
 const MAGIC_SIZE = sizeof(eltype(MAGIC))
 
-include("lib/conversions.jl")
 include("lib/CompactSizeUInt.jl")
 include("transaction/Tx.jl")
 include("Header.jl")
