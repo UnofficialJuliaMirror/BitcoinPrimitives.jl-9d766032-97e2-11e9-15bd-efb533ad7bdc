@@ -18,9 +18,9 @@ using BitConverter
         script = Script(script_pubkey)
         @test bytes2hex(serialize(script)) == want
     end
-    # @testset "P2WPKH" begin
-    #     h160 = hex2bytes("74d691da1574e6b3c192ecfb52cc8984ee7b6c56")
-    #     p2wpkh_script = p2wpkh_script(h160)
-    #     @test is_p2wpkh(p2wpkh_script)
-    # end
+    @testset "P2WPKH" begin
+        h160 = hex2bytes("74d691da1574e6b3c192ecfb52cc8984ee7b6c56")
+        script = BitcoinPrimitives.script(h160, type=:P2WPKH)
+        @test BitcoinPrimitives.type(script) == :P2WPKH
+    end
 end

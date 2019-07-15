@@ -84,53 +84,38 @@ function serialize(s::Script)
     return result
 end
 
-const SCRIPT_TYPE = Base.ImmutableDict(
-    "P2PKH" => ()
-)
+"""
+    script(::Vector{UInt8}; type::Symbol=:P2WSH) -> Script
 
+Returns a `Script` of set type for given hash.
+- `type` can be `:P2PKH`, `:P2SH`, `:P2WPKH` or `:P2WSH`
+- hash must be 32 bytes long for P2WSH script, 20 for the others
 """
-Takes a hash160 && returns the p2pkh scriptPubKey
-"""
-function p2pkh_script(h160::Vector{UInt8})
-    script = Union{UInt8, Vector{UInt8}}[]
-    pushfirst!(script, 0x76, 0xa9)
-    push!(script, h160, 0x88, 0xac)
-    return Script(script)
+function script(bin::Vector{UInt8}; type::Symbol=:P2PKH)
+    if type == :P2WSH
+        @assert length(bin) == 32
+        return Script([[0x00], bin])
+    else
+        @assert length(bin) == 20
+        if type == :P2PKH
+            return Script([[0x76], [0xa9], bin, [0x88], [0xac]])
+        elseif type == :P2SH
+            return Script([0xa9], bin, [0x87])
+        elseif type == :P2WPKH
+            return Script([[0x00], bin])
+        end
+    end
 end
 
-"""
-Takes a hash160 && returns the p2sh scriptPubKey
-"""
-function p2sh_script(h160::Vector{UInt8})
-    script = Union{UInt8, Vector{UInt8}}[]
-    pushfirst!(script, 0xa9)
-    push!(script, h160, 0x87)
-    return Script(script)
-end
-
-"""
-Takes a hash160 && returns the p2wpkh ScriptPubKey
-"""
-function p2wpkh_script(h160::Vector{UInt8})
-    return Script([0x00, h160])
-end
-
-"""
-Takes a hash160 && returns the p2wsh ScriptPubKey
-"""
-function p2wsh_script(hash256::Vector{UInt8})
-    return Script([0x00, h256])
-end
-
-function scripttype(script::Script)
+function type(script::Script)
     if is_p2pkh(script)
-        return "P2PKH"
+        return :P2PKH
     elseif is_p2sh(script)
-        return "P2SH"
+        return :P2SH
     elseif is_p2wsh(script)
-        return "P2WSH"
+        return :P2WSH
     elseif is_p2wpkh(script)
-        return "P2WPKH"
+        return :P2WPKH
     else
         return error("Unknown Script type")
     end
@@ -142,12 +127,12 @@ OP_DUP OP_HASH160 <20 byte hash> OP_EQUALVERIFY OP_CHECKSIG pattern.
 """
 function is_p2pkh(script::Script)
     return length(script.instructions) == 5 &&
-        script.instructions[1] == 0x76 &&
-        script.instructions[2] == 0xa9 &&
+        script.instructions[1] == [0x76] &&
+        script.instructions[2] == [0xa9] &&
         typeof(script.instructions[3]) == Vector{UInt8} &&
         length(script.instructions[3]) == 20 &&
-        script.instructions[4] == 0x88 &&
-        script.instructions[5] == 0xac
+        script.instructions[4] == [0x88] &&
+        script.instructions[5] == [0xac]
 end
 
 """
@@ -156,15 +141,15 @@ OP_HASH160 <20 byte hash> OP_EQUAL pattern.
 """
 function is_p2sh(script::Script)
     return length(script.instructions) == 3 &&
-           script.instructions[1] == 0xa9 &&
+           script.instructions[1] == [0xa9] &&
            typeof(script.instructions[2]) == Vector{UInt8} &&
            length(script.instructions[2]) == 20 &&
-           script.instructions[3] == 0x87
+           script.instructions[3] == [0x87]
 end
 
 function is_p2wpkh(script::Script)
     length(script.instructions) == 2 &&
-    script.instructions[1] == 0x00 &&
+    script.instructions[1] == [0x00] &&
     typeof(script.instructions[2]) == Vector{UInt8} &&
     length(script.instructions[2]) == 20
 end
@@ -175,7 +160,7 @@ OP_0 <20 byte hash> pattern.
 """
 function is_p2wsh(script::Script)
     length(script.instructions) == 2 &&
-    script.instructions[1] == 0x00 &&
+    script.instructions[1] == [0x00] &&
     typeof(script.instructions[2]) == Vector{UInt8} &&
     length(script.instructions[2]) == 32
 

@@ -16,7 +16,7 @@ export
     TxIn, TxOut, Tx,
     Block, Header,
     Script, Witness,
-    serialize
+    serialize, script
 
 const HEADER_SIZE = 80
 
