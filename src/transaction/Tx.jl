@@ -7,6 +7,8 @@ include("Outpoint.jl")
 include("TxIn.jl")
 include("TxOut.jl")
 include("Witness.jl")
+include("../script/Script.jl")
+
 
 abstract type Transaction end
 

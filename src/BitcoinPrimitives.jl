@@ -5,7 +5,11 @@
 
 module BitcoinPrimitives
 
-using SHA, Printf
+using Printf, Secp256k1
+using Ripemd: ripemd160
+using SHA: sha1
+
+import SHA: sha256
 
 export
     CompactSizeUInt, Outpoint,
