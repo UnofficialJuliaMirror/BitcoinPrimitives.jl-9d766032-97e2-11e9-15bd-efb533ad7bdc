@@ -15,7 +15,7 @@ export
     serialize, iscoinbase, coinbase_height,
     script, type,
     hash256,
-    target, difficulty, check_pow, validate_merkle_root
+    target, difficulty, check_pow
 
 const HEADER_SIZE = 80
 
