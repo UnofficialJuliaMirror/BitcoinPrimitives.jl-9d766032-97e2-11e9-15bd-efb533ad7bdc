@@ -13,9 +13,9 @@
             @test header.bits == 0x18013ce9
             @test header.nonce == 0x1dd7ffa4
         end
-        # @testset "Serialize" begin
-        #     @test serialize(header) == header_raw
-        # end
+        @testset "Serialize" begin
+            @test serialize(header) == header_raw
+        end
         @testset "Hash" begin
             @test hash256(header) == hex2bytes("0000000000000000007e9e4c586439b0cdbe13b1370bdd9435d76a644d047523")
         end

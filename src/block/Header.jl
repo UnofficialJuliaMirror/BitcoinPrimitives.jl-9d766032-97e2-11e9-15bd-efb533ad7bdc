@@ -79,40 +79,53 @@ function Base.show(io::IO, header::Header)
 end
 # Base.showall(io::IO, header::Header) = show(io, header)
 
+"""
+    serialize(header::BlockHeader) -> Vector{UInt8}
+
+Returns the 80 byte Vector{UInt8} for the block header
+"""
+function serialize(header::Header)
+    result = Vector(reinterpret(UInt8, [htol(header.version)]))
+    append!(result, header.prevhash)
+    append!(result, header.merkleroot)
+    append!(result, Vector(reinterpret(UInt8, [htol(header.time)])))
+    append!(result, Vector(reinterpret(UInt8, [htol(header.bits)])))
+    append!(result, Vector(reinterpret(UInt8, [htol(header.nonce)])))
+end
 
 """
-    bip9(block::Header) -> Bool
+    bip9(header::Header) -> Bool
 
-Returns whether this block is signaling readiness for BIP9
+Returns whether this header is signaling readiness for BIP9
 
     BIP9 is signalled if the top 3 bits are 001
     remember version is 32 bytes so right shift 29 (>> 29) and see if
     that is 001
 """
-bip9(block::Header) = block.version >> 29 == 0b001
+bip9(header::Header) = header.version >> 29 == 0b001
 
 """
-    bip91(block::Header) -> Bool
+    bip91(header::Header) -> Bool
 
-Returns whether this block is signaling readiness for BIP91
+Returns whether this header is signaling readiness for BIP91
 
     BIP91 is signalled if the 5th bit from the right is 1
     shift 4 bits to the right and see if the last bit is 1
 """
-bip91(block::Header) = block.version >> 4 & 1 == 1
+bip91(header::Header) = header.version >> 4 & 1 == 1
 
 """
-    bip141(block::Header) - > Bool
+    bip141(header::Header) - > Bool
 
-Returns whether this block is signaling readiness for BIP141
+Returns whether this header is signaling readiness for BIP141
 
     BIP91 is signalled if the 2nd bit from the right is 1
     shift 1 bit to the right and see if the last bit is 1
 """
-bip141(block::Header) = block.version >> 1 & 1 == 1
+bip141(header::Header) = header.version >> 1 & 1 == 1
 
 """
-    target(block::Header) -> BigInt
+    target(header::Header) -> BigInt
 
 Returns the proof-of-work target based on the bits
 
@@ -120,36 +133,36 @@ Returns the proof-of-work target based on the bits
     the first three bytes are the coefficient in little endian
     the formula is: coefficient * 256**(exponent-3)
 """
-function target(block::Header)
-    exponent = block.bits >> 24
-    coefficient = block.bits & 0x00ffffff
+function target(header::Header)
+    exponent = header.bits >> 24
+    coefficient = header.bits & 0x00ffffff
     return coefficient * big(256)^(exponent - 3)
 end
 
 """
-    difficulty(block::Header) -> BigInt
+    difficulty(header::Header) -> BigInt
 
-Returns the block difficulty based on the bits
+Returns the header difficulty based on the bits
 
-    difficulty is (target of lowest difficulty) / (block's target)
+    difficulty is (target of lowest difficulty) / (header's target)
     lowest difficulty has bits that equal 0xffff001d
 """
-function difficulty(block::Header)
+function difficulty(header::Header)
     lowest = 0xffff * big(256)^(0x1d - 3)
-    return div(lowest, target(block))
+    return div(lowest, target(header))
 end
 
 """
-    check_pow(block::Header) -> Bool
+    check_pow(header::Header) -> Bool
 
-Returns whether this block satisfies proof of work
+Returns whether this header satisfies proof of work
 
-    get the hash256 of the serialization of this block
+    get the hash256 of the serialization of this header
     interpret this hash as a little-endian number
     return whether this integer is less than the target
 """
-function check_pow(block::Header)
-    block_hash = hash256(block)
+function check_pow(header::Header)
+    block_hash = hash256(header)
     proof = to_int(block_hash, little_endian=true)
-    return proof < target(block)
+    return proof < target(header)
 end
