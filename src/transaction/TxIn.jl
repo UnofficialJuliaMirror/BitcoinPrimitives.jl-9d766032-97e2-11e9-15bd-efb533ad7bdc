@@ -21,7 +21,7 @@ struct TxIn
 end
 
 """
-    TxIn(io::IOBuffer)
+    TxIn(io::IOBuffer) -> TxIn
 
 Parse an `IOBuffer` to a `TxIn`
 """

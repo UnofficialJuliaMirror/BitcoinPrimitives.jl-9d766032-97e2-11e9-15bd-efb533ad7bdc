@@ -14,6 +14,11 @@ struct Outpoint
     index   :: UInt32
 end
 
+"""
+    Outpoint(io::IOBuffer) -> Outpoint
+
+Parse an `Outpoint` from an IOBuffer
+"""
 function Outpoint(io::IOBuffer)
     txid = reverse(read(io, 32))
     index = read(io, UInt32)
@@ -21,7 +26,7 @@ function Outpoint(io::IOBuffer)
 end
 
 """
-    serialize(tx::Outpoint) -> Vector{UInt8}
+    serialize(prevout::Outpoint) -> Vector{UInt8}
 
 Returns the byte serialization of the outpoint
 """

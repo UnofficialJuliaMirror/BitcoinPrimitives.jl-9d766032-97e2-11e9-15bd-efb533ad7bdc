@@ -16,7 +16,8 @@ export
     TxIn, TxOut, Tx,
     Block, Header,
     Script, Witness,
-    serialize, script, iscoinbase, coinbase_height
+    serialize, iscoinbase, coinbase_height,
+    script, type
 
 const HEADER_SIZE = 80
 

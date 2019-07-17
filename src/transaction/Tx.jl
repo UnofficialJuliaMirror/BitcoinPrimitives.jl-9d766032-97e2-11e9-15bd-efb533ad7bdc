@@ -43,6 +43,12 @@ struct Tx <: Transaction
     locktime    :: UInt32
 end
 
+
+"""
+    Tx(io::IOBuffer) -> Tx
+
+Parse an `IOBuffer` to a `Tx`
+"""
 function Tx(io::IOBuffer)
 
     version         =   ltoh(read(io, UInt32))
