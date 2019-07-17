@@ -23,8 +23,8 @@ Script() = Script(Vector{UInt8}[])
 function Base.show(io::IO, z::Script)
     for item in z.data
         if length(item) == 1
-            if haskey(OP_CODE_NAMES, item)
-                println(io, OP_CODE_NAMES[Int(item[1])])
+            if haskey(OP_CODE_NAMES, item[1])
+                println(io, OP_CODE_NAMES[item[1]])
             else
                 println(io, string("OP_CODE_", Int(item[1])))
             end

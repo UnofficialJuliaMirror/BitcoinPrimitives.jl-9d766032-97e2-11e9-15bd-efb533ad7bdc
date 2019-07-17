@@ -57,8 +57,7 @@ Header(io::IO) = Header(read(io, 80))
 end
 
 function Base.propertynames(::Type{Header}, private = false)
-    (:version, :prevhash, :merkleroot,
-     :time, :bits, :nonce,
+    (:version, :prevhash, :merkleroot, :time, :bits, :nonce,
      fieldnames(Header)...)
 end
 
