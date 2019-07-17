@@ -17,13 +17,6 @@ export
     hash256,
     target, difficulty, check_pow
 
-const HEADER_SIZE = 80
-
-# This reads reversed compared to the byte order
-# TODO: big endian little endian
-const MAGIC = 0xd9b4_bef9
-const MAGIC_SIZE = sizeof(eltype(MAGIC))
-
 include("lib/CompactSizeUInt.jl")
 include("transaction/Tx.jl")
 include("block/Block.jl")
