@@ -157,15 +157,3 @@ function check_pow(block::Header)
     proof = to_int(block_hash, little_endian=true)
     return proof < target(block)
 end
-
-"""
-    validate_merkle_root(block::Header, hashes::Vector{Vector{UInt8}}) -> Bool
-
-Gets the merkle root of the hashes and checks that it's
-the same as the merkle root of this block header.
-"""
-function validate_merkle_root(block::Header, hashes::Vector{Vector{UInt8}})
-    hashes = [reverse!(copy(h)) for h in hashes]
-    root = merkle_root(hashes)
-    merkle_root(hashes) == block.merkleroot
-end

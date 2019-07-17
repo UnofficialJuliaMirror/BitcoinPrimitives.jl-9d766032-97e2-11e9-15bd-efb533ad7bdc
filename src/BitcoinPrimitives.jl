@@ -5,7 +5,7 @@
 
 module BitcoinPrimitives
 
-using Printf, BitConverter, Secp256k1, Ripemd, SHA, MerkleTrees
+using Printf, BitConverter, Secp256k1, Ripemd, SHA
 
 export
     CompactSizeUInt, Outpoint,
