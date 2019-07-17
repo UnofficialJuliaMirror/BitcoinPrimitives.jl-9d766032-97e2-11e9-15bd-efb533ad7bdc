@@ -1,14 +1,13 @@
 include("op-codes.jl")
 
-
-mutable struct Script
-    instructions::Vector{Vector{UInt8}}
+struct Script
+    data::Vector{Vector{UInt8}}
 end
 
 Script() = Script(Vector{UInt8}[])
 
 function show(io::IO, z::Script)
-    for instruction in z.instructions
+    for instruction in z.data
         if typeof(instruction) <: Integer
             if haskey(OP_CODE_NAMES, instruction)
                 print(io, "\n", OP_CODE_NAMES[Int(instruction)])
@@ -30,39 +29,40 @@ Parse a `Script` from an IOBuffer
 """
 function Script(io::IOBuffer)
     length_ = CompactSizeUInt(io).value
-    instructions = Vector{UInt8}[]
+    data = Vector{UInt8}[]
     count = 0
     while count < length_
         count += 1
         current_byte = read(io, UInt8)
         if current_byte >= 0x01 && current_byte <= 0x4b
             n = current_byte
-            push!(instructions, read(io, n))
+            push!(data, read(io, n))
             count += n
         elseif current_byte == 0x4c
             # op_pushdata1
             n = read(io, Int8)
-            push!(instructions, read(io, n))
+            push!(data, read(io, n))
             count += n + 1
         elseif current_byte == 0x4d
             # op_pushdata2
             n = read(io, Int16)
-            push!(instructions, read(io, n))
+            push!(data, read(io, n))
             count += n + 2
         else
             # op_code
-            push!(instructions, [current_byte])
+            push!(data, [current_byte])
         end
     end
     @assert count == length_ "Parsing failed"
-    return Script(instructions)
+    return Script(data)
 end
 
 function serialize(s::Script)
     result = UInt8[]
-    for instruction in s.instructions
-        if typeof(instruction) == UInt8
-            push!(result, instruction)
+    for instruction in s.data
+        length_ = length(instruction)
+        if length_ == 1
+            append!(result, instruction)
         else
             length_ = length(instruction)
             if length_ < 0x4b
@@ -72,7 +72,7 @@ function serialize(s::Script)
                 append!(result, UInt8(length_))
             elseif length_ >= 0x100 && length_ <= 0x208
                 append!(result, 0x4d)
-                result += int2bytes(length_, 2)
+                result += bytes(length_, len=2)
             else
                 error("too long an instruction")
             end
@@ -126,13 +126,13 @@ Returns whether this follows the
 OP_DUP OP_HASH160 <20 byte hash> OP_EQUALVERIFY OP_CHECKSIG pattern.
 """
 function is_p2pkh(script::Script)
-    return length(script.instructions) == 5 &&
-        script.instructions[1] == [0x76] &&
-        script.instructions[2] == [0xa9] &&
-        typeof(script.instructions[3]) == Vector{UInt8} &&
-        length(script.instructions[3]) == 20 &&
-        script.instructions[4] == [0x88] &&
-        script.instructions[5] == [0xac]
+    return length(script.data) == 5 &&
+        script.data[1] == [0x76] &&
+        script.data[2] == [0xa9] &&
+        typeof(script.data[3]) == Vector{UInt8} &&
+        length(script.data[3]) == 20 &&
+        script.data[4] == [0x88] &&
+        script.data[5] == [0xac]
 end
 
 """
@@ -140,18 +140,18 @@ Returns whether this follows the
 OP_HASH160 <20 byte hash> OP_EQUAL pattern.
 """
 function is_p2sh(script::Script)
-    return length(script.instructions) == 3 &&
-           script.instructions[1] == [0xa9] &&
-           typeof(script.instructions[2]) == Vector{UInt8} &&
-           length(script.instructions[2]) == 20 &&
-           script.instructions[3] == [0x87]
+    return length(script.data) == 3 &&
+           script.data[1] == [0xa9] &&
+           typeof(script.data[2]) == Vector{UInt8} &&
+           length(script.data[2]) == 20 &&
+           script.data[3] == [0x87]
 end
 
 function is_p2wpkh(script::Script)
-    length(script.instructions) == 2 &&
-    script.instructions[1] == [0x00] &&
-    typeof(script.instructions[2]) == Vector{UInt8} &&
-    length(script.instructions[2]) == 20
+    length(script.data) == 2 &&
+    script.data[1] == [0x00] &&
+    typeof(script.data[2]) == Vector{UInt8} &&
+    length(script.data[2]) == 20
 end
 
 """
@@ -159,10 +159,10 @@ Returns whether this follows the
 OP_0 <20 byte hash> pattern.
 """
 function is_p2wsh(script::Script)
-    length(script.instructions) == 2 &&
-    script.instructions[1] == [0x00] &&
-    typeof(script.instructions[2]) == Vector{UInt8} &&
-    length(script.instructions[2]) == 32
+    length(script.data) == 2 &&
+    script.data[1] == [0x00] &&
+    typeof(script.data[2]) == Vector{UInt8} &&
+    length(script.data[2]) == 32
 
 end
 
@@ -176,6 +176,6 @@ Returns the address corresponding to the script
 """
 function script2address(script::Script, testnet::Bool)
     type = scripttype(script)
-    h160 = script.instructions[H160_INDEX[type]]
+    h160 = script.data[H160_INDEX[type]]
     return h160_2_address(h160, testnet, type)
 end

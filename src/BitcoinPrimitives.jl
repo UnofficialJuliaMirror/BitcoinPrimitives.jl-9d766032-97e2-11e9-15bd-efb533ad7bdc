@@ -5,7 +5,7 @@
 
 module BitcoinPrimitives
 
-using Printf, Secp256k1
+using Printf, BitConverter, Secp256k1
 using Ripemd: ripemd160
 using SHA: sha1
 

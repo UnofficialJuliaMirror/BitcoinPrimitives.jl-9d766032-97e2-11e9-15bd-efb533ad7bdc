@@ -13,13 +13,13 @@ A `TxOut` is composed of
 outputs may not exceed the sum of satoshis previously spent to the outpoints
 provided in the input section. (Exception: coinbase transactions spend the
 block subsidy and collected transaction fees.)
-- `pk_script::Vector{UInt8}` which defines the conditions which must be
+- `scriptpubkey::Script` which defines the conditions which must be
 satisfied to spend this output.
 
 """
 struct TxOut
-    value       :: UInt64
-    pk_script   :: Vector{UInt8}
+    value           :: UInt64
+    scriptpubkey    :: Script
 end
 
 """
@@ -29,18 +29,28 @@ Parse an `IOBuffer` to a `TxOut`
 """
 function TxOut(io::IOBuffer)
     value = read(io, UInt64)
-    script_bytes = CompactSizeUInt(io).value
-    pk_script = read(io, script_bytes)
+    scriptpubkey = Script(io)
 
-    TxOut(value, pk_script)
+    TxOut(value, scriptpubkey)
 end
 
 function Base.show(io::IO, output::TxOut)
-    println(io, "Transaction output: " * string(output.amount, base = 10))
+    println(io, "Transaction output: " * string(output.value, base = 10))
 end
 
 # function Base.showall(io::IO, output::TxOut)
-#     println(io, "Transaction output: "    * string(output.amount,              base = 10))
+#     println(io, "Transaction output: "    * string(output.value,              base = 10))
 #     println(io, "  Locking script size: " * string(output.locking_script_size, base = 10))
 #     println(io, "  Locking script:      " * hexarray(output.locking_script))
 # end
+
+"""
+    serialize(tx::TxOut) -> Vector{UInt8}
+
+Returns the byte serialization of the transaction output
+"""
+function serialize(tx::TxOut)
+    result = bytes(tx.value, len=8, little_endian=true)
+    append!(result, serialize(tx.scriptpubkey))
+    return result
+end

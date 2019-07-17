@@ -3,11 +3,11 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+include("../script/Script.jl")
+include("../script/Witness.jl")
 include("Outpoint.jl")
 include("TxIn.jl")
 include("TxOut.jl")
-include("Witness.jl")
-include("../script/Script.jl")
 
 
 abstract type Transaction end
@@ -40,7 +40,7 @@ struct Tx <: Transaction
     inputs      :: Vector{TxIn}
     outputs     :: Vector{TxOut}
     witnesses   :: Vector{Witness}
-    lock_time   :: UInt32
+    locktime    :: UInt32
 end
 
 function Tx(io::IOBuffer)
@@ -49,6 +49,7 @@ function Tx(io::IOBuffer)
 
     x               =   CompactSizeUInt(io).value
     x == zero(x)    ?   segwit = true : segwit = false
+
     if segwit
         marker, flag    =   x, read(io, UInt8)
         @assert flag    ==  0x01
@@ -66,10 +67,10 @@ function Tx(io::IOBuffer)
         @assert witness_count > 0
         witnesses = Witness[Witness(io) for i ∈ 1:witness_count]
     else
-        witnesses = Witness([0x00])
+        witnesses = [Witness()]
     end
 
-    version ≥ 2 ? locktime = ltoh(read(io, UInt32)) : locktime = 0xffffffff
+    locktime = ltoh(read(io, UInt32))
 
     return Tx(version, marker, flag, inputs, outputs, witnesses, locktime)
 end
@@ -102,6 +103,39 @@ end
 #     end
 #     println(io, "  Lock time:      " * string(transaction.lock_time, base = 10))
 # end
+
+
+"""
+    serialize(tx::Tx) -> Vector{UInt8}
+
+Returns the byte serialization of the transaction
+"""
+function serialize(tx::Tx)
+    result = bytes(tx.version, len=4, little_endian=true)
+
+    (tx.marker, tx.flag) == (0xff, 0xff) ? bip141 = false : bip141 = true
+    bip141 ? append!(result, [tx.marker, tx.flag]) : nothing
+
+    l = CompactSizeUInt(length(tx.inputs))
+    append!(result, serialize(l))
+    for input in tx.inputs
+        append!(result, serialize(input))
+    end
+
+    l = CompactSizeUInt(length(tx.outputs))
+    append!(result, serialize(l))
+    for output in tx.outputs
+        append!(result, serialize(output))
+    end
+
+    if bip141
+        for i ∈ 1:length(tx.inputs)
+            append!(result, serialize(tx.witnesses[i]))
+        end
+    end
+    append!(result, bytes(tx.locktime, len=4, little_endian=true))
+    return result
+end
 
 # TODO: little endian only:
 function sha256(tx::Tx)
