@@ -35,14 +35,10 @@ function TxOut(io::IOBuffer)
 end
 
 function Base.show(io::IO, output::TxOut)
-    println(io, "Transaction output: " * string(output.value, base = 10))
+    println(io, "Transaction output: ₿" * string(output.value/100000000))
+    println(io, "ScriptPubKey:")
+    println(io, output.scriptpubkey)
 end
-
-# function Base.showall(io::IO, output::TxOut)
-#     println(io, "Transaction output: "    * string(output.value,              base = 10))
-#     println(io, "  Locking script size: " * string(output.locking_script_size, base = 10))
-#     println(io, "  Locking script:      " * hexarray(output.locking_script))
-# end
 
 """
     serialize(tx::TxOut) -> Vector{UInt8}

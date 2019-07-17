@@ -43,6 +43,13 @@ function Witness(io::IO)
     Witness(data)
 end
 
+function Base.show(io::IO, program::Witness)
+    println("Witness Program:")
+    for item in program.data
+        println(io, bytes2hex(item))
+    end
+end
+
 """
     serialize(program::Witness) -> Vector{UInt8}
 

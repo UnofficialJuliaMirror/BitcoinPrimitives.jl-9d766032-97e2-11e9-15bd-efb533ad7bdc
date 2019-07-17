@@ -81,35 +81,15 @@ function Tx(io::IOBuffer)
     return Tx(version, marker, flag, inputs, outputs, witnesses, locktime)
 end
 
-# TODO: is this the same as bytes2hex?
-hexarray(x::Array{UInt8}) = mapreduce(x -> string(x, base = 16), *, x)
-
-function Base.show(io::IO, transaction::Tx)
-    # TODO: add id here
-    if !get(io, :compact, false)
-        println(io, "Transaction: ")
-        println(io, "  Version:        " * string(transaction.version, base = 10))
-        println(io, "  Input counter:  " * string(length(transaction.inputs), base = 10))
-        println(io, "  Output counter: " * string(length(transaction.outputs), base = 10))
-        println(io, "  Lock time:      " * string(transaction.locktime, base = 10))
-    end
+function Base.show(io::IO, tx::Tx)
+    println(io, "Transaction:      " * bytes2hex(reverse(hash256(tx))))
+    println(io, "  Version:        " * string(tx.version,           base = 10))
+    println(io, "  Marker:         " * string(tx.marker,            base = 10))
+    println(io, "  Flag:           " * string(tx.flag,              base = 10))
+    println(io, "  Input counter:  " * string(length(tx.inputs),    base = 10))
+    println(io, "  Output counter: " * string(length(tx.outputs),   base = 10))
+    println(io, "  Lock time:      " * string(tx.locktime,          base = 10))
 end
-
-# function Base.showall(io::IO, transaction::Tx)
-#     # TODO: add id here
-#     println(io, "Transaction: ")
-#     println(io, "  Version:        " * string(transaction.version, base = 10))
-#     println(io, "  Input counter:  " * string(transaction.input_counter, base = 10))
-#     for i ∈ 1:transaction.input_counter
-#         show(transaction.inputs[i])
-#     end
-#     println(io, "  Output counter: " * string(transaction.output_counter, base = 10))
-#     for i ∈ 1:transaction.output_counter
-#         show(transaction.outputs[i])
-#     end
-#     println(io, "  Lock time:      " * string(transaction.lock_time, base = 10))
-# end
-
 
 """
     serialize(tx::Tx) -> Vector{UInt8}

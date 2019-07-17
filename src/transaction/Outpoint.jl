@@ -25,6 +25,10 @@ function Outpoint(io::IOBuffer)
     Outpoint(txid, index)
 end
 
+function Base.show(io::IO, prevout::Outpoint)
+    println(io, "Outpoint: " * bytes2hex(prevout.txid) * ":" * string(prevout.index, base=10))
+end
+
 """
     serialize(prevout::Outpoint) -> Vector{UInt8}
 

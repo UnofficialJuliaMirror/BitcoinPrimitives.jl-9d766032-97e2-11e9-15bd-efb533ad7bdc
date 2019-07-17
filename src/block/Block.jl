@@ -26,45 +26,12 @@ function Block(io::IO)
     return Block(blockheader, transactions)
 end
 
-function Block(x::Array{UInt8})
-    block_size = length(x)
-
-    io = IOBuffer(x)
-
-    block_header = Header(io)
-
-    n_trans = read_varint(io)
-    @assert n_trans > zero(n_trans)
-    transactions = Tx[
-        Tx(io)
-        for i in 1:n_trans
-    ]
-
-    return Block(
-        block_size,
-        block_header,
-        n_trans,
-        transactions
-    )
-end
-
-function showcompact(io::IO, block::Block)
-    print(io, "Block, %d bytes, %d transactions:\n",
-            block.size, block.transaction_counter)
-end
-
 function Base.show(io::IO, block::Block)
-    showcompact(io, block)
-    if !get(io, :compact, false)
-        show(io, block.header)
+    print(io, block.header)
+    for tx in block.transactions
+        print(io, tx)
     end
 end
-
-# function Base.showall(io::IO, block::Block)
-#     show(io, block)
-#     println("Transactions:")
-#     show(io, block.transactions)
-# end
 
 """
     serialize(block::Header) -> Vector{UInt8}

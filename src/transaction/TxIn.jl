@@ -34,12 +34,10 @@ function TxIn(io::IOBuffer)
 end
 
 function Base.show(io::IO, input::TxIn)
-    if !get(io, :compact, false)
-        println(io, "Transaction input:")
-        println(io, "  Hash:                  " * string(input.prevout.txid, base = 16))
-        println(io, "  Output index:          " * string(input.prevout.index, base = 10))
-        println(io, "  Input Sequence:        " * string(input.sequence, base = 10))
-    end
+    println(io, "Transaction input (sequence: " * string(input.sequence, base=10) * "):")
+    println(io, input.prevout)
+    println(io, "ScriptSig:")
+    println(io, input.scriptsig)
 end
 
 # function Base.showall(io::IO, input::TxIn)

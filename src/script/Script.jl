@@ -20,18 +20,16 @@ end
 
 Script() = Script(Vector{UInt8}[])
 
-function show(io::IO, z::Script)
-    for instruction in z.data
-        if typeof(instruction) <: Integer
-            if haskey(OP_CODE_NAMES, instruction)
-                print(io, "\n", OP_CODE_NAMES[Int(instruction)])
+function Base.show(io::IO, z::Script)
+    for item in z.data
+        if length(item) == 1
+            if haskey(OP_CODE_NAMES, item)
+                println(io, OP_CODE_NAMES[Int(item[1])])
             else
-                print(io, "\n", string("OP_CODE_", Int(instruction)))
+                println(io, string("OP_CODE_", Int(item[1])))
             end
-        elseif typeof(instruction) <: Vector{UInt8}
-            print(io, "\n", bytes2hex(instruction))
         else
-            print(io, "\n", instruction)
+            println(io, bytes2hex(item))
         end
     end
 end
@@ -78,12 +76,12 @@ Serialize a `Script` to a Vector{UInt8}
 """
 function serialize(s::Script)
     result = UInt8[]
-    for instruction in s.data
-        length_ = length(instruction)
+    for item in s.data
+        length_ = length(item)
         if length_ == 1
-            append!(result, instruction)
+            append!(result, item)
         else
-            length_ = length(instruction)
+            length_ = length(item)
             if length_ < 0x4b
                 append!(result, UInt8(length_))
             elseif length_ > 0x4b && length_ < 0x100
@@ -93,9 +91,9 @@ function serialize(s::Script)
                 append!(result, 0x4d)
                 result += bytes(length_, len=2)
             else
-                error("too long an instruction")
+                error("too long an item")
             end
-            append!(result, instruction)
+            append!(result, item)
         end
     end
     total = CompactSizeUInt(length(result))

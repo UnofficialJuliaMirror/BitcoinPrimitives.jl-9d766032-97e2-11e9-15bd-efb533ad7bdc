@@ -1,4 +1,5 @@
 # Copyright (c) 2019 Guido Kraemer
+# Copyright (c) 2019 Simon Castano
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -56,28 +57,19 @@ Header(io::IO) = Header(read(io, 80))
 end
 
 function Base.propertynames(::Type{Header}, private = false)
-    (:version, :previous_hash, :merkle_root,
-     :timestamp, :difficulty_target, :nonce,
+    (:version, :prevhash, :merkleroot,
+     :time, :bits, :nonce,
      fieldnames(Header)...)
 end
 
-function showcompact(io::IO, header::Header)
-    println(io, "Header, " * string(header.timestamp, base = 10) * ":")
-end
-
 function Base.show(io::IO, header::Header)
-    showcompact(io, header)
-    if !get(io, :compact, false)
-        # TODO: add leading zeroes where necessary
-        println(io, "  Version:    " * string(header.version,           base = 16))
-        println(io, "  Prev Hash:  " * string(header.previous_hash,     base = 16))
-        println(io, "  Root:       " * string(header.merkle_root,       base = 16))
-        println(io, "  Time:       " * string(header.timestamp,         base = 10))
-        println(io, "  Difficulty: " * string(header.difficulty_target, base = 16))
-        println(io, "  Nounce:     " * string(header.nonce,            base = 10))
-    end
+    println(io, "  Version:    " * string(header.version,    base = 16))
+    println(io, "  Prev Hash:  " * bytes2hex(header.prevhash))
+    println(io, "  Root:       " * bytes2hex(header.merkleroot))
+    println(io, "  Time:       " * string(header.time,       base = 10))
+    println(io, "  Difficulty: " * string(header.bits,       base = 16))
+    println(io, "  Nonce:      " * string(header.nonce,      base = 10))
 end
-# Base.showall(io::IO, header::Header) = show(io, header)
 
 """
     serialize(header::Header) -> Vector{UInt8}
