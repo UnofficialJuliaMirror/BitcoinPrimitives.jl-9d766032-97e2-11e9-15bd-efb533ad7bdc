@@ -44,10 +44,6 @@ Header(io::IO) = Header(read(io, 80))
 
 @inline Base.getindex(x::Header, r) = x.data[r]
 
-@inline function gidx(x, ::Val{from}, ::Val{to}) where from where to
-    ntuple(i -> x[i + from - 1], to - from + 1)
-end
-
 @inline function Base.getproperty(x::Header, d::Symbol)
     if     d == :version    ltoh(reinterpret(UInt32, x.data[1:4])[1])
     elseif d == :prevhash   x.data[5:36]
