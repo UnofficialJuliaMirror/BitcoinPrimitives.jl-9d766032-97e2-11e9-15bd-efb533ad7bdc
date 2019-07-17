@@ -143,35 +143,6 @@ function serialize(tx::Tx)
     return result
 end
 
-# TODO: little endian only:
-function sha256(tx::Tx)
-
-    ctx = SHA.SHA256_CTX()
-
-    SHA.update!(ctx, to_byte_tuple(tx.version))
-    SHA.update!(ctx, to_varint(tx.input_counter))
-    for i ∈ 1:tx.input_counter
-        SHA.update!(ctx, to_byte_tuple(tx.inputs[i].hash))
-        SHA.update!(ctx, to_byte_tuple(tx.inputs[i].output_index))
-        SHA.update!(ctx, to_varint(tx.inputs[i].unlocking_script_size))
-        SHA.update!(ctx, tx.inputs[i].unlocking_script)
-        SHA.update!(ctx, to_byte_tuple(tx.inputs[i].sequence_number))
-    end
-    SHA.update!(ctx, to_varint(tx.output_counter))
-    for i ∈ 1:tx.output_counter
-        SHA.update!(ctx, to_byte_tuple(tx.outputs[i].amount))
-        SHA.update!(ctx, to_varint(tx.outputs[i].locking_script_size))
-        SHA.update!(ctx, tx.outputs[i].locking_script)
-    end
-    SHA.update!(ctx, to_byte_tuple(tx.lock_time))
-
-    return SHA.digest!(ctx)
-end
-
-function double_sha256(tx::Tx)::UInt256
-    tx |> sha256 |> sha256 |> x -> reinterpret(UInt256, x)[1]
-end
-
 total_output(tx::Tx) = sum(x -> x.amount, tx.outputs)
 
 """

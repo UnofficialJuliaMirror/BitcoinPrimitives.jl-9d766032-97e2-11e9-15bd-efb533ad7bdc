@@ -6,6 +6,7 @@ version = "0.1.0"
 
 [deps]
 BitConverter = "3a3ce9e8-98e7-11e9-0fa0-055639f146d3"
+MerkleTrees = "06dfef30-8e85-11e9-0a8e-cb6ed32fdbef"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 Ripemd = "92ef3814-971d-54d3-b0c1-59b1d13fee15"
 SHA = "ea8e919c-243c-51af-8825-aaa63cd721ce"

@@ -58,6 +58,12 @@ script(bin::Vector{UInt8}; type::Symbol)
 type(script::Script)
 ```
 
+## Cryptographic Functions
+
+```@docs
+hash256
+```
+
 ## Buy me a cup of coffee
 
 [Donate Bitcoin](bitcoin:34nvxratCQcQgtbwxMJfkmmxwrxtShTn67)

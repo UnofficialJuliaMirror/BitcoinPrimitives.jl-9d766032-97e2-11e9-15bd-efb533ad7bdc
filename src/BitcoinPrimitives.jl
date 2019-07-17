@@ -5,11 +5,7 @@
 
 module BitcoinPrimitives
 
-using Printf, BitConverter, Secp256k1
-using Ripemd: ripemd160
-using SHA: sha1
-
-import SHA: sha256
+using Printf, BitConverter, Secp256k1, Ripemd, SHA, MerkleTrees
 
 export
     CompactSizeUInt, Outpoint,
@@ -17,7 +13,9 @@ export
     Block, Header,
     Script, Witness,
     serialize, iscoinbase, coinbase_height,
-    script, type
+    script, type,
+    hash256,
+    target, difficulty, check_pow, validate_merkle_root
 
 const HEADER_SIZE = 80
 
@@ -29,5 +27,6 @@ const MAGIC_SIZE = sizeof(eltype(MAGIC))
 include("lib/CompactSizeUInt.jl")
 include("transaction/Tx.jl")
 include("block/Block.jl")
+include("lib/hash.jl")
 
 end # module

@@ -69,22 +69,6 @@ end
 #     show(io, block.transactions)
 # end
 
-"""
-    double_sha256(x::Block)::UInt256
-    double_sha256(x::Header)::UInt256
-    double_sha256(x::Tx)::UInt256
-
-Hash a `Block`, `Header`, or `Tx`
-
-```julia
-double_sha256(block)
-double_sha256(header)
-double_sha256(transaction)
-```
-"""
-double_sha256(x::Block) = double_sha256(x.header)
-
-
 function dump_block_data(io::IO)
     block_size = read(io, UInt32)
     read!(io, Array{UInt8}(undef, block_size))

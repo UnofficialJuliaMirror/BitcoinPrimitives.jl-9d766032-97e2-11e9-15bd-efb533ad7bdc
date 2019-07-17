@@ -83,7 +83,89 @@ function Base.show(io::IO, header::Header)
 end
 # Base.showall(io::IO, header::Header) = show(io, header)
 
-function double_sha256(x::Header)::UInt256
-    x.data |> sha256 |> sha256 |>
-        x -> reinterpret(UInt256, x)[1]
+
+"""
+    bip9(block::Header) -> Bool
+
+Returns whether this block is signaling readiness for BIP9
+
+    BIP9 is signalled if the top 3 bits are 001
+    remember version is 32 bytes so right shift 29 (>> 29) and see if
+    that is 001
+"""
+bip9(block::Header) = block.version >> 29 == 0b001
+
+"""
+    bip91(block::Header) -> Bool
+
+Returns whether this block is signaling readiness for BIP91
+
+    BIP91 is signalled if the 5th bit from the right is 1
+    shift 4 bits to the right and see if the last bit is 1
+"""
+bip91(block::Header) = block.version >> 4 & 1 == 1
+
+"""
+    bip141(block::Header) - > Bool
+
+Returns whether this block is signaling readiness for BIP141
+
+    BIP91 is signalled if the 2nd bit from the right is 1
+    shift 1 bit to the right and see if the last bit is 1
+"""
+bip141(block::Header) = block.version >> 1 & 1 == 1
+
+"""
+    target(block::Header) -> BigInt
+
+Returns the proof-of-work target based on the bits
+
+    last byte is exponent
+    the first three bytes are the coefficient in little endian
+    the formula is: coefficient * 256**(exponent-3)
+"""
+function target(block::Header)
+    exponent = block.bits >> 24
+    coefficient = block.bits & 0x00ffffff
+    return coefficient * big(256)^(exponent - 3)
+end
+
+"""
+    difficulty(block::Header) -> BigInt
+
+Returns the block difficulty based on the bits
+
+    difficulty is (target of lowest difficulty) / (block's target)
+    lowest difficulty has bits that equal 0xffff001d
+"""
+function difficulty(block::Header)
+    lowest = 0xffff * big(256)^(0x1d - 3)
+    return div(lowest, target(block))
+end
+
+"""
+    check_pow(block::Header) -> Bool
+
+Returns whether this block satisfies proof of work
+
+    get the hash256 of the serialization of this block
+    interpret this hash as a little-endian number
+    return whether this integer is less than the target
+"""
+function check_pow(block::Header)
+    block_hash = hash256(block)
+    proof = to_int(block_hash, little_endian=true)
+    return proof < target(block)
+end
+
+"""
+    validate_merkle_root(block::Header, hashes::Vector{Vector{UInt8}}) -> Bool
+
+Gets the merkle root of the hashes and checks that it's
+the same as the merkle root of this block header.
+"""
+function validate_merkle_root(block::Header, hashes::Vector{Vector{UInt8}})
+    hashes = [reverse!(copy(h)) for h in hashes]
+    root = merkle_root(hashes)
+    merkle_root(hashes) == block.merkleroot
 end
