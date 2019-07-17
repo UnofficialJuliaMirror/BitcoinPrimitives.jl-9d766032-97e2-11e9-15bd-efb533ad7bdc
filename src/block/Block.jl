@@ -17,7 +17,12 @@ struct Block
     transactions        :: Vector{Tx}
 end
 
-function Block(io::IO)
+"""
+    Block(io::IOBuffer) -> Block
+
+Parse a `Block` from an `IOBuffer`
+"""
+function Block(io::IOBuffer)
     blockheader = Header(io)
     n_trans = CompactSizeUInt(io).value
     @assert n_trans > zero(n_trans) "Block must have at least one transaction"
