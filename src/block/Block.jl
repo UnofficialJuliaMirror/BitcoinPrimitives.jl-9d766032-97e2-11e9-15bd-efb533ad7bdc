@@ -13,20 +13,17 @@ Consists of a `block.header::Header` and
 `block.transactions::Vector{Tx}`.
 """
 struct Block
-    magic               :: UInt32
     header              :: Header
     transactions        :: Vector{Tx}
 end
 
 function Block(io::IO)
-    magic = read(io, UInt32)
-    blocksize = read(io, UInt32)
     blockheader = Header(io)
     n_trans = CompactSizeUInt(io).value
     @assert n_trans > zero(n_trans) "Block must have at least one transaction"
     transactions = [Tx(io) for i in 1:n_trans]
 
-    return Block(magic, blockheader, transactions)
+    return Block(blockheader, transactions)
 end
 
 function Block(x::Array{UInt8})
