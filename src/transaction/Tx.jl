@@ -268,4 +268,24 @@ end
 
 total_output(tx::Tx) = sum(x -> x.amount, tx.outputs)
 
-is_coinbase(txin::TxIn) = txin.hash == zero(UInt256)
+"""
+    iscoinbase(tx::Tx) -> Bool
+
+Returns whether this transaction is a coinbase transaction or not
+"""
+function iscoinbase(tx::Tx)
+    outpoint = tx.inputs[1].prevout
+    length(tx.inputs) == 1 && outpoint.txid == fill(0x00, 32) && outpoint.index == 0xffffffff
+end
+
+"""
+    coinbase_height(tx::Tx) ->
+
+Returns the height of the block this coinbase transaction is in
+Returns an `AssertionError` if `tx` isn't a coinbase transaction
+"""
+function coinbase_height(tx::Tx)
+    @assert iscoinbase(tx) "This is not a coinbase transaction"
+    height_bytes = tx.inputs[1].scriptsig.data[1]
+    return to_int(height_bytes, little_endian=true)
+end
