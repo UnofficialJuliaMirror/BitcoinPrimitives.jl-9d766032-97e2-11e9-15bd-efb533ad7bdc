@@ -42,7 +42,6 @@ serialize(::TxIn)
 serialize(::TxOut)
 serialize(::Tx)
 serialize(::Block)
-serialize(::Header)
 ```
 
 ## Transaction Functions

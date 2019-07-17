@@ -89,9 +89,9 @@ function Base.show(io::IO, transaction::Tx)
     if !get(io, :compact, false)
         println(io, "Transaction: ")
         println(io, "  Version:        " * string(transaction.version, base = 10))
-        println(io, "  Input counter:  " * string(transaction.input_counter, base = 10))
-        println(io, "  Output counter: " * string(transaction.output_counter, base = 10))
-        println(io, "  Lock time:      " * string(transaction.lock_time, base = 10))
+        println(io, "  Input counter:  " * string(length(transaction.inputs), base = 10))
+        println(io, "  Output counter: " * string(length(transaction.outputs), base = 10))
+        println(io, "  Lock time:      " * string(transaction.locktime, base = 10))
     end
 end
 

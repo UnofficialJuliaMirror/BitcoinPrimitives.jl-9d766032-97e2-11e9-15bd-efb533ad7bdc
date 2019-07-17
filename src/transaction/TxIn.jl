@@ -36,9 +36,9 @@ end
 function Base.show(io::IO, input::TxIn)
     if !get(io, :compact, false)
         println(io, "Transaction input:")
-        println(io, "  Hash:                  " * string(input.hash,            base = 16))
-        println(io, "  Output index:          " * string(input.output_index,    base = 10))
-        println(io, "  Input Sequence:        " * string(input.sequence_number, base = 10))
+        println(io, "  Hash:                  " * string(input.prevout.txid, base = 16))
+        println(io, "  Output index:          " * string(input.prevout.index, base = 10))
+        println(io, "  Input Sequence:        " * string(input.sequence, base = 10))
     end
 end
 

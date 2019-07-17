@@ -2,6 +2,8 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+include("Header.jl")
+
 """
     Block
 
@@ -9,38 +11,22 @@ Data Structure representing a Block in the Bitcoin blockchain.
 
 Consists of a `block.header::Header` and
 `block.transactions::Vector{Tx}`.
-
-To get the hash of a `Block`
-```julia
-double_sha256(block)
-```
 """
 struct Block
-    size                :: UInt32
+    magic               :: UInt32
     header              :: Header
-    transaction_counter :: UInt64
     transactions        :: Vector{Tx}
 end
 
 function Block(io::IO)
+    magic = read(io, UInt32)
+    blocksize = read(io, UInt32)
+    blockheader = Header(io)
+    n_trans = CompactSizeUInt(io).value
+    @assert n_trans > zero(n_trans) "Block must have at least one transaction"
+    transactions = [Tx(io) for i in 1:n_trans]
 
-    block_size = read(io, UInt32)
-
-    block_header = Header(io)
-
-    n_trans = read_varint(io)
-    @assert n_trans > zero(n_trans)
-    transactions = Tx[
-        Tx(io)
-        for i in 1:n_trans
-    ]
-
-    return Block(
-        block_size,
-        block_header,
-        n_trans,
-        transactions
-    )
+    return Block(magic, blockheader, transactions)
 end
 
 function Block(x::Array{UInt8})
