@@ -66,26 +66,16 @@ end
 #     show(io, block.transactions)
 # end
 
-function dump_block_data(io::IO)
-    block_size = read(io, UInt32)
-    read!(io, Array{UInt8}(undef, block_size))
-end
+"""
+    serialize(block::Header) -> Vector{UInt8}
 
-function dump_block_data(block::Block)
-
-    data = Array{UInt8}(undef, block.size)
-
-    copyto!(data, 1, block.header.data)
-
-    transaction_counter = to_varint(block.transaction_counter)
-    copyto!(data, 81, transaction_counter)
-    idx = 81 + length(transaction_counter)
-
-    for i in 1:block.transaction_counter
-        idx = dump_tx_data!(data, idx, block.transactions[i])
+Serialize a Block
+"""
+function serialize(block::Block)
+    result = serialize(block.header)
+    append!(result, length(block.transactions))
+    for tx in block.transactions
+        append!(result, serialize(tx))
     end
-
-    @assert idx == length(data) + 1
-
-    return data
+    return result
 end

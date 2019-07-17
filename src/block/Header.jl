@@ -80,7 +80,7 @@ end
 # Base.showall(io::IO, header::Header) = show(io, header)
 
 """
-    serialize(header::BlockHeader) -> Vector{UInt8}
+    serialize(header::Header) -> Vector{UInt8}
 
 Returns the 80 byte Vector{UInt8} for the block header
 """
