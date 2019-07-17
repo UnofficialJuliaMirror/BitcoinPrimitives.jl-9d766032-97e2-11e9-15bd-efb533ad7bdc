@@ -52,7 +52,7 @@ function Block(x::Array{UInt8})
 end
 
 function showcompact(io::IO, block::Block)
-    @printf(io, "Block, %d bytes, %d transactions:\n",
+    print(io, "Block, %d bytes, %d transactions:\n",
             block.size, block.transaction_counter)
 end
 
