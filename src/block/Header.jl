@@ -49,12 +49,12 @@ Header(io::IO) = Header(read(io, 80))
 end
 
 @inline function Base.getproperty(x::Header, d::Symbol)
-    if     d == :version    reinterpret(UInt32, x.data[1:4])[1]
+    if     d == :version    ltoh(reinterpret(UInt32, x.data[1:4])[1])
     elseif d == :prevhash   x.data[5:36]
     elseif d == :merkleroot x.data[37:68]
-    elseif d == :time       reinterpret(UInt32, x.data[69:72])[1]
-    elseif d == :bits       reinterpret(UInt32, x.data[73:76])[1]
-    elseif d == :nonce      reinterpret(UInt32, x.data[77:80])[1]
+    elseif d == :time       ltoh(reinterpret(UInt32, x.data[69:72])[1])
+    elseif d == :bits       ltoh(reinterpret(UInt32, x.data[73:76])[1])
+    elseif d == :nonce      ltoh(reinterpret(UInt32, x.data[77:80])[1])
     else getfield(x, d)
     end
 end
